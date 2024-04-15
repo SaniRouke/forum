@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -25,7 +26,7 @@ type SnippetModel struct {
 // This will insert a new snippet into the database.
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
 	stmt := `INSERT INTO snippets (title, content, created, expires)
-	VALUES(?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+	VALUES(?, ?, DATETIME('now', '+06:00'), DATETIME(?, '+06:00'))`
 
 	result, err := m.DB.Exec(stmt, title, content, expires)
 	if err != nil {
@@ -46,13 +47,13 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 
 	err := m.DB.QueryRow("SELECT id, title, content, created, expires FROM snippets WHERE expires > CURRENT_TIMESTAMP AND id = ?", id).Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 	if err != nil {
+		fmt.Println(err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
 		} else {
 			return nil, err
 		}
 	}
-
 	return s, nil
 }
 
