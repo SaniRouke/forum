@@ -26,7 +26,7 @@ type SnippetModel struct {
 // This will insert a new snippet into the database.
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
 	stmt := `INSERT INTO snippets (title, content, created, expires)
-	VALUES(?, ?, DATETIME('now', '+06:00'), DATETIME(?, '+06:00'))`
+	VALUES(?, ?, DATETIME('now', '+06:00'), datetime('now', '+'||?||' day', '+06:00'))`
 
 	result, err := m.DB.Exec(stmt, title, content, expires)
 	if err != nil {
